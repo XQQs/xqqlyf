@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>晴晴和菲菲的友谊纪念馆</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #FFE4E1;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+        h1 {
+            color: #FF69B4;
+        }
+        .photo-upload, .message-board, .anniversary {
+            margin-top: 20px;
+        }
+        input[type="file"], .message-box {
+            margin-top: 10px;
+        }
+        .submit-btn {
+            background-color: #FF69B4;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .submit-btn:hover {
+            background-color: #FF1493;
+        }
+        #music {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>💕 晴晴和菲菲的友谊纪念馆 💕</h1>
+
+        <h2>🎉 友谊天数计算</h2>
+        <div class="anniversary">
+            <p>我们已经认识了：<span id="daysTogether"></span> 天</p>
+            <p>下一个友谊纪念日还有：<span id="nextAnniversary"></span> 天</p>
+        </div>
+
+        <h2>📸 记录我们的美好回忆</h2>
+        <div class="photo-upload">
+            <input type="file" id="photoUpload" accept="image/*">
+            <br>
+            <img id="uploadedPhoto" style="max-width: 100%; margin-top: 10px;">
+        </div>
+
+        <h2>💌 留言墙</h2>
+        <div class="message-board">
+            <textarea id="message" class="message-box" placeholder="给对方写点想说的话吧..."></textarea>
+            <br>
+            <button class="submit-btn" onclick="saveMessage()">发送</button>
+        </div>
+        <div id="messageDisplay"></div>
+
+        <h2>🎶 播放我们的专属BGM</h2>
+        <audio id="music" controls>
+            <source src="your-music.mp3" type="audio/mpeg">
+            你的浏览器不支持音频播放。
+        </audio>
+    </div>
+
+    <script>
+        // 照片上传功能
+        document.getElementById("photoUpload").addEventListener("change", function(event) {
+            var reader = new FileReader();
+            reader.onload = function(){
+                var img = document.getElementById("uploadedPhoto");
+                img.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        });
+
+        // 保存留言并存入 LocalStorage
+        function saveMessage() {
+            var message = document.getElementById("message").value.trim();
+            if (message !== "") {
+                var messageDisplay = document.getElementById("messageDisplay");
+                var newMessage = document.createElement("p");
+                newMessage.textContent = "💌 " + message;
+                messageDisplay.appendChild(newMessage);
+
+                // 保存到 LocalStorage
+                var messages = JSON.parse(localStorage.getItem("friendshipMessages")) || [];
+                messages.push(message);
+                localStorage.setItem("friendshipMessages", JSON.stringify(messages));
+
+                document.getElementById("message").value = ""; 
+            }
+        }
+
+        // 页面加载时显示保存的留言
+        function loadMessages() {
+            var messages = JSON.parse(localStorage.getItem("friendshipMessages")) || [];
+            var messageDisplay = document.getElementById("messageDisplay");
+            messageDisplay.innerHTML = ""; // 确保不重复加载
+            messages.forEach(function(msg) {
+                var newMessage = document.createElement("p");
+                newMessage.textContent = "💌 " + msg;
+                messageDisplay.appendChild(newMessage);
+            });
+        }
+
+        // 友谊纪念日倒计时
+        function calculateAnniversary() {
+            var startDate = new Date("2021-09-23");  // 你们认识的日期
+            var today = new Date();
+            var timeDiff = today - startDate;
+            var daysTogether = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            document.getElementById("daysTogether").textContent = daysTogether;
+
+            // 计算下一个周年纪念日
+            var nextAnniversary = new Date(startDate);
+            nextAnniversary.setFullYear(today.getFullYear());
+            if (nextAnniversary < today) {
+                nextAnniversary.setFullYear(today.getFullYear() + 1);
+            }
+            var daysToNext = Math.ceil((nextAnniversary - today) / (1000 * 60 * 60 * 24));
+            document.getElementById("nextAnniversary").textContent = daysToNext;
+        }
+
+        // 页面加载时执行
+        window.onload = function() {
+            calculateAnniversary();  // 计算友谊天数
+            loadMessages();  // 载入留言
+        };
+    </script>
+
+</body>
+</html>
